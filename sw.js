@@ -1,36 +1,36 @@
 /* ==========================================================================
-   LAPIS — Service Worker (Offline Support & PWA Caching - v2)
+   LAPIS — Service Worker (iOS/Safari Safari PWA Network-First - v3)
    ========================================================================== */
 
-const CACHE_NAME = 'lapis-pwa-cache-v2';
+const CACHE_NAME = 'lapis-pwa-cache-v3';
 const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './styles.css?v=2',
-  './app.js?v=2',
+  './index.html?v=3',
+  './styles.css?v=3',
+  './app.js?v=3',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
 ];
 
-// Install Event: Cache core static app shell
+// Install Event: Skip waiting immediately
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[ServiceWorker] Pre-caching App Shell v2');
+      console.log('[ServiceWorker] Pre-caching v3 App Shell');
       return cache.addAll(STATIC_ASSETS);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
-// Activate Event: Cleanup old caches
+// Activate Event: Delete all old caches & claim clients immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(
         keyList.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('[ServiceWorker] Removing old cache', key);
+            console.log('[ServiceWorker] Deleting old cache:', key);
             return caches.delete(key);
           }
         })
@@ -39,11 +39,27 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event: Cache first for static assets, network first for API
+// Fetch Event
 self.addEventListener('fetch', (event) => {
   const reqUrl = event.request.url;
 
-  // Handle Met API requests with Stale-While-Revalidate caching
+  // 1. FOR HTML / NAVIGATE REQUESTS: NETWORK-FIRST to guarantee instant HTML updates on reload
+  if (event.request.mode === 'navigate' || reqUrl.endsWith('.html') || reqUrl.endsWith('/') || reqUrl.includes('index.html')) {
+    event.respondWith(
+      fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseCopy = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseCopy));
+        }
+        return networkResponse;
+      }).catch(() => {
+        return caches.match(event.request) || caches.match('./index.html');
+      })
+    );
+    return;
+  }
+
+  // 2. FOR MET API REQUESTS: Stale-While-Revalidate
   if (reqUrl.includes('metmuseum.org')) {
     event.respondWith(
       caches.open('met-api-cache').then((cache) => {
@@ -62,22 +78,16 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // App shell & static resources cache-first strategy
+  // 3. FOR STATIC ASSETS: Network-First fallback to Cache
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
+    fetch(event.request).then((networkResponse) => {
+      if (networkResponse && networkResponse.status === 200) {
+        const responseCopy = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseCopy));
       }
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
-        }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        return networkResponse;
-      });
+      return networkResponse;
+    }).catch(() => {
+      return caches.match(event.request);
     })
   );
 });
