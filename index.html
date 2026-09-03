@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Lapis — Mobile PWA art discovery tool for exploring global masterpieces from The Metropolitan Museum of Art collection.">
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <meta name="theme-color" content="#0d1b2a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lapis">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <title>Lapis — Mobile PWA Art Discovery</title>
+  
+  <!-- Preconnect to Google Fonts & Art APIs -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://images.metmuseum.org">
+
+  <!-- Google Fonts: Cormorant Garamond (Luxury Display Serif) & Plus Jakarta Sans (Clean Modern Sans) -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header id="app-header">
+    <div class="brand-wrapper">
+      <span class="brand-gem" aria-hidden="true"></span>
+      <div>
+        <h1 class="brand-title">Lapis</h1>
+        <span class="brand-subtitle">Met Museum Art Discovery</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" aria-label="Main Navigation">
+      <button id="tab-discovery" class="nav-tab active" aria-controls="view-discovery" aria-selected="true">
+        <span>✨ Discovery</span>
+      </button>
+      <button id="tab-collection" class="nav-tab" aria-controls="view-collection" aria-selected="false">
+        <span>🖼️ Collection</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Era Selector Control Bar -->
+  <section class="era-selector-bar" aria-label="Select Historical Era">
+    <div class="era-selector-inner">
+      <label for="era-select" class="era-label">⏳ Era:</label>
+      <select id="era-select" class="era-dropdown">
+        <option value="1300_1599" selected>⚜️ Renaissance (1300–1599)</option>
+        <option value="-500_500">🏺 Ancient & Classical (500 BCE–500 CE)</option>
+        <option value="500_1299">🛡️ Medieval Art (500–1299)</option>
+        <option value="1600_1799">👑 Baroque & Rococo (1600–1799)</option>
+        <option value="1800_1899">🌻 19th Century & Impressionism (1800–1899)</option>
+        <option value="1900_2025">🎨 20th Century & Modern (1900–Present)</option>
+        <option value="-1000_2025">🌍 Complete Met Art History (All Eras)</option>
+      </select>
+      <span id="era-count-badge" class="era-count-badge">Loading API...</span>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main id="main-content">
+
+    <!-- 1. Flashcard Discovery Mode View -->
+    <section id="view-discovery" class="view-panel active" aria-label="Flashcard Discovery">
+
+      <div class="discovery-container">
+
+        <!-- 3D Card Container -->
+        <div class="card-perspective" id="card-perspective-area">
+          <div id="painting-card" class="card-3d" tabindex="0" role="region" aria-label="Painting flashcard">
+            
+            <!-- Card Front -->
+            <div class="card-face card-front">
+              <div class="card-image-wrapper">
+                <div id="front-skeleton" class="image-skeleton"></div>
+                <span id="front-century-badge" class="century-badge">--</span>
+                <span id="front-source-badge" class="source-badge">The Met Museum</span>
+                <button id="btn-card-fav" class="btn-fav-card" aria-label="Toggle Favorite">★ Star</button>
+                <img id="front-painting-img" class="card-image" src="" alt="Painting Masterpiece" style="opacity: 0;">
+              </div>
+
+              <div class="card-front-info">
+                <div>
+                  <h2 id="front-painting-title" class="artwork-title-main">Loading artwork...</h2>
+                  <p id="front-painting-artist-year" class="artwork-artist-year">--</p>
+                </div>
+                <button class="tap-affordance-btn" id="btn-tap-flip-hint">
+                  <span class="tap-icon">🔄</span> Tap Card to Flip & Read Analysis
+                </button>
+              </div>
+            </div>
+
+            <!-- Card Back (Museum Placard & Art Analysis) -->
+            <div class="card-face card-back">
+              <div class="card-back-header">
+                <h3 id="back-painting-title" class="card-back-title">--</h3>
+                <p id="back-painting-artist" class="card-back-artist">--</p>
+              </div>
+
+              <!-- Museum Placard -->
+              <div class="museum-placard">
+                <div class="placard-row">
+                  <span class="placard-label">Medium:</span>
+                  <span id="back-medium" class="placard-val">--</span>
+                </div>
+                <div class="placard-row">
+                  <span class="placard-label">Location:</span>
+                  <span id="back-location" class="placard-val">--</span>
+                </div>
+                <div class="placard-row">
+                  <span class="placard-label">Culture/Era:</span>
+                  <span id="back-region" class="placard-val">--</span>
+                </div>
+              </div>
+
+              <!-- Art Analysis -->
+              <div class="analysis-section">
+                <h4 class="analysis-heading">🎨 Composition & Technique</h4>
+                <p id="back-analysis" class="analysis-text">--</p>
+              </div>
+
+              <!-- Historical Significance -->
+              <div class="analysis-section">
+                <h4 class="analysis-heading">📜 Historical Context</h4>
+                <p id="back-historical-context" class="analysis-text">--</p>
+              </div>
+
+              <!-- Met Museum Accession Record -->
+              <div class="wiki-excerpt-box">
+                <div class="wiki-excerpt-title">
+                  <span>🏛️ Met Museum Accession Record</span>
+                  <span id="wiki-loading-indicator" style="display:none;">Loading record...</span>
+                </div>
+                <p id="back-wiki-extract-text" class="wiki-extract-text">Official accession record from the Metropolitan Museum of Art Collection.</p>
+                <a id="back-wiki-link" class="wiki-link" href="#" target="_blank" rel="noopener noreferrer">
+                  View Record on MetMuseum.org ↗
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Main Discovery Controls Toolbar -->
+        <div class="controls-toolbar">
+          <button id="btn-prev" class="btn-ctrl btn-ctrl-nav" aria-label="Previous Painting">
+            <span>⬅️</span> Prev
+          </button>
+
+          <button id="btn-flip" class="btn-ctrl btn-flip-primary" aria-label="Flip Card">
+            <span>🔄</span> Flip Card
+          </button>
+
+          <button id="btn-next" class="btn-ctrl btn-ctrl-nav" aria-label="Next Painting">
+            Next <span>➡️</span>
+          </button>
+        </div>
+
+        <!-- Secondary Action Buttons -->
+        <div class="secondary-controls-toolbar">
+          <button id="btn-fav-toolbar" class="btn-secondary-action" aria-label="Star Favorite">
+            <span class="star-icon">⭐</span> Star Favorite
+          </button>
+          <button id="btn-shuffle" class="btn-secondary-action" aria-label="Shuffle Deck">
+            <span>🔀</span> Shuffle
+          </button>
+          <button id="btn-zoom" class="btn-secondary-action" aria-label="Fullscreen Zoom">
+            <span>🔍</span> Inspect
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. History & Collection Mode View -->
+    <section id="view-collection" class="view-panel" aria-label="Collection & Exploration History">
+      <div class="collection-container">
+
+        <!-- Exploration Progress Card -->
+        <div class="progress-card">
+          <div class="progress-header">
+            <h2 class="progress-title">Met Museum Collection Works</h2>
+            <span id="progress-text" class="progress-stats">Loading Met Collection...</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="progress-fill" class="progress-bar-fill"></div>
+          </div>
+        </div>
+
+        <!-- Filters Toolbar -->
+        <div class="filter-toolbar">
+          <div class="filter-pills" role="tablist" aria-label="Filter by Category">
+            <button class="filter-pill active" data-century="all">All Masterpieces</button>
+            <button class="filter-pill" data-century="14th">14th Century</button>
+            <button class="filter-pill" data-century="15th">15th Century</button>
+            <button class="filter-pill" data-century="16th">16th Century</button>
+          </div>
+
+          <button id="btn-fav-filter" class="btn-toggle-fav-filter">
+            <span>⭐</span> Favorites Only
+          </button>
+        </div>
+
+        <!-- Masterpieces Grid -->
+        <div id="gallery-grid" class="gallery-grid">
+          <!-- Dynamically populated via JS from Met Collection -->
+        </div>
+
+        <!-- Load More from Met Museum Button -->
+        <div class="load-more-box">
+          <button id="btn-load-more-met" class="btn-load-more">
+            <span>🏛️</span> Load 20 More Masterpieces from Met Museum
+          </button>
+        </div>
+
+        <!-- Empty Grid State -->
+        <div id="empty-grid-msg" class="empty-grid-msg" style="display: none;">
+          No paintings found matching the selected filter criteria.
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Fullscreen Artwork Inspection Zoom Modal -->
+  <div id="modal-zoom" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Artwork Inspector">
+    <div class="modal-content">
+      <button id="btn-close-zoom" class="btn-modal-close" aria-label="Close Inspector">✕</button>
+      <div class="zoom-modal-body">
+        <div class="zoom-image-container">
+          <img id="zoom-img" src="" alt="Zoomed Painting View">
+        </div>
+        <p id="zoom-caption" class="zoom-caption"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Painting Modal (For Collection Grid Items) -->
+  <div id="modal-detail" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Painting Details">
+    <div class="modal-content">
+      <button id="btn-close-detail" class="btn-modal-close" aria-label="Close Details">✕</button>
+      <div id="detail-modal-body" class="detail-modal-body">
+        <!-- Dynamically rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
