@@ -25,9 +25,10 @@
   --border-gold: rgba(212, 175, 55, 0.4);
   --border-subtle: rgba(224, 225, 221, 0.14);
 
-  /* Typography: Cormorant Garamond (Serif) & Plus Jakarta Sans (UI) */
+  /* Typography: Cormorant Garamond (Serif), Plus Jakarta Sans (UI), Vazirmatn (Farsi) */
   --font-heading: 'Cormorant Garamond', Georgia, serif;
   --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-farsi: 'Vazirmatn', Tahoma, sans-serif;
 
   --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.65), 0 0 25px rgba(212, 175, 55, 0.2);
   --shadow-gold: 0 0 25px rgba(212, 175, 55, 0.45);
@@ -97,6 +98,79 @@ button {
   border: none;
   outline: none;
   background: none;
+}
+
+/* --------------------------------------------------------------------------
+   Mandatory Farsi Disclaimer Modal
+   -------------------------------------------------------------------------- */
+.disclaimer-modal-content {
+  background: linear-gradient(165deg, #1b263b 0%, #0d1b2a 100%);
+  border: 2px solid var(--accent-gold);
+  border-radius: var(--radius-lg);
+  max-width: 480px;
+  width: 90%;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 0 35px rgba(212, 175, 55, 0.4), var(--shadow-modal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  z-index: 2000;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.disclaimer-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.disclaimer-heading {
+  font-family: var(--font-farsi);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-gold);
+  border-bottom: 1px solid var(--border-gold);
+  padding-bottom: 0.5rem;
+  width: 100%;
+}
+
+.disclaimer-text-farsi {
+  font-family: var(--font-farsi);
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: #ffffff;
+  direction: rtl;
+  text-align: justify;
+  text-align-last: center;
+  background: rgba(13, 27, 42, 0.8);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem 1rem;
+}
+
+.btn-accept-disclaimer {
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #d4af37 0%, #b89320 100%);
+  color: #0d1b2a;
+  font-family: var(--font-farsi);
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5);
+  transition: all var(--transition-fast);
+}
+
+.btn-accept-disclaimer:hover {
+  background: linear-gradient(135deg, #e5c158 0%, #d4af37 100%);
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(212, 175, 55, 0.7);
 }
 
 /* --------------------------------------------------------------------------
@@ -285,7 +359,7 @@ button {
 .card-perspective {
   flex: 1;
   width: 100%;
-  min-height: 0; /* Allows flex child to shrink properly on small screens */
+  min-height: 0;
   perspective: 1200px;
   -webkit-perspective: 1200px;
   position: relative;
@@ -341,7 +415,7 @@ button {
   z-index: 1;
   background: linear-gradient(165deg, var(--bg-surface-elevated) 0%, var(--bg-card-back) 100%);
   padding: 1rem 1.15rem;
-  overflow-y: auto; /* Internal scrolling inside card back only */
+  overflow-y: auto;
   direction: ltr;
   text-align: left;
 }

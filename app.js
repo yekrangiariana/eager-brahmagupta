@@ -29,14 +29,18 @@
 
   // LocalStorage Keys
   const STORAGE_KEYS = {
-    HISTORY: 'lapis_history_met_era_v6',
-    FAVORITES: 'lapis_favorites_met_era_v6'
+    HISTORY: 'lapis_history_met_era_v7',
+    FAVORITES: 'lapis_favorites_met_era_v7'
   };
 
   // ==========================================================================
   // DOM Element References
   // ==========================================================================
   const elements = {
+    // Disclaimer Modal
+    modalDisclaimer: document.getElementById('modal-disclaimer'),
+    btnAcceptDisclaimer: document.getElementById('btn-accept-disclaimer'),
+
     // Navigation Tabs & Era Controls
     tabDiscovery: document.getElementById('tab-discovery'),
     tabCollection: document.getElementById('tab-collection'),
@@ -115,9 +119,6 @@
   // Met Museum API Engine (Dynamic Date Ranges)
   // ==========================================================================
 
-  /**
-   * Fetch object IDs from Metropolitan Museum of Art API for selected date range
-   */
   async function fetchMetObjectIDsForEra(dateBegin, dateEnd) {
     state.dateBegin = dateBegin;
     state.dateEnd = dateEnd;
@@ -141,11 +142,9 @@
           elements.eraCountBadge.textContent = `${state.totalMetCount.toLocaleString()} Works`;
         }
 
-        // Reset current deck for new era
         state.deck = [];
         state.currentIndex = 0;
 
-        // Fetch initial batch of 20 paintings from this era
         await loadBatchMetItems(20);
       } else {
         state.metObjectIDs = [];
@@ -162,9 +161,6 @@
     }
   }
 
-  /**
-   * Determine century or era tag from objectDate string
-   */
   function formatEraBadge(dateStr) {
     if (!dateStr) return 'Historical Art';
 
@@ -193,9 +189,6 @@
     return `${centuryNum}th Century`;
   }
 
-  /**
-   * Fetch object details for a single Met Museum Object ID
-   */
   async function fetchMetObjectDetails(objectID) {
     if (state.metCache.has(objectID)) {
       return state.metCache.get(objectID);
@@ -240,9 +233,6 @@
     }
   }
 
-  /**
-   * Batch fetch Met items and add them to deck & collection
-   */
   async function loadBatchMetItems(targetCount = 20) {
     if (!state.metObjectIDs.length || state.isLoadingMetBatch) return;
     state.isLoadingMetBatch = true;
@@ -623,6 +613,15 @@
   // ==========================================================================
 
   function initEventListeners() {
+    // Disclaimer Modal Accept Listener
+    if (elements.btnAcceptDisclaimer) {
+      elements.btnAcceptDisclaimer.addEventListener('click', () => {
+        if (elements.modalDisclaimer) {
+          elements.modalDisclaimer.classList.remove('active');
+        }
+      });
+    }
+
     elements.tabDiscovery.addEventListener('click', () => switchView('discovery'));
     elements.tabCollection.addEventListener('click', () => switchView('collection'));
 
