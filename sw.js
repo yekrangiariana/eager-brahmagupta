@@ -1,13 +1,13 @@
 /* ==========================================================================
-   LAPIS — Service Worker (Offline Support & PWA Caching)
+   LAPIS — Service Worker (Offline Support & PWA Caching - v2)
    ========================================================================== */
 
-const CACHE_NAME = 'lapis-pwa-cache-v1';
+const CACHE_NAME = 'lapis-pwa-cache-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
-  './styles.css',
-  './app.js',
+  './styles.css?v=2',
+  './app.js?v=2',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
@@ -17,7 +17,7 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[ServiceWorker] Pre-caching App Shell');
+      console.log('[ServiceWorker] Pre-caching App Shell v2');
       return cache.addAll(STATIC_ASSETS);
     }).then(() => self.skipWaiting())
   );
